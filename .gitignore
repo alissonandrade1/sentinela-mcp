@@ -3,6 +3,9 @@
 # Projeto PRIVADO. Repositório NÃO público.
 # ========================================
 
+# ---------- Knowledge Base (NUNCA commitar) ----------
+context.md
+
 # ---------- Dependencies ----------
 node_modules/
 .pnp
