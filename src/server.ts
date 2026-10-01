@@ -15,6 +15,15 @@ import { xssAnalyzer } from "./analyzers/xss.js";
 import { deserializationAnalyzer } from "./analyzers/deserialization.js";
 import { loggingAnalyzer } from "./analyzers/logging.js";
 import { errorMessagesAnalyzer } from "./analyzers/error-messages.js";
+import { timingAnalyzer } from "./analyzers/timing.js";
+import { identityAnalyzer } from "./analyzers/identity.js";
+import { mutationsAnalyzer } from "./analyzers/mutations.js";
+import { dependenciesAnalyzer } from "./analyzers/dependencies.js";
+import { headersAnalyzer } from "./analyzers/headers.js";
+import { corsAnalyzer } from "./analyzers/cors.js";
+import { testsAnalyzer } from "./analyzers/tests.js";
+import { secretsMgmtAnalyzer } from "./analyzers/secrets-mgmt.js";
+import { requestLimitsAnalyzer } from "./analyzers/request-limits.js";
 import { calculateScore, summarizeFindings } from "./core/scoring.js";
 import type { Analyzer, AnalyzerContext, AuditReport, Finding } from "./core/types.js";
 
@@ -32,11 +41,22 @@ const server = new McpServer({
 // ============================================================================
 
 const analyzers: Analyzer[] = [
+  // M2 — Grep puro
   secretsAnalyzer,
   xssAnalyzer,
   deserializationAnalyzer,
   loggingAnalyzer,
   errorMessagesAnalyzer,
+  timingAnalyzer,
+  identityAnalyzer,
+  mutationsAnalyzer,
+  // M3 — Filesystem + Config
+  dependenciesAnalyzer,
+  headersAnalyzer,
+  corsAnalyzer,
+  testsAnalyzer,
+  secretsMgmtAnalyzer,
+  requestLimitsAnalyzer,
 ];
 
 // ============================================================================
