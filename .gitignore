@@ -70,3 +70,5 @@ $RECYCLE.BIN/
 .temp/
 .tmp/
 *.tgz
+*.zip
+release/
