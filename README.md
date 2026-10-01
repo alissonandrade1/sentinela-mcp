@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🛡️ Sentinela
+# Sentinela
 
 **Infraestrutura de segurança para agentes de IA via Model Context Protocol (MCP)**
 
