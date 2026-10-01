@@ -1,65 +1,66 @@
 <div align="center">
 
-# Sentinela
+# 🛡️ Sentinela
 
-**Infraestrutura de segurança para agentes de IA via Model Context Protocol (MCP)**
+**Infraestrutura de Segurança e Auditoria de Código para Agentes de IA via Model Context Protocol (MCP)**
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-20+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![MCP](https://img.shields.io/badge/MCP-Protocol-8B5CF6)](https://modelcontextprotocol.io/)
-[![Vitest](https://img.shields.io/badge/Tests-Vitest-green?logo=vitest)](https://vitest.dev/)
-[![License](https://img.shields.io/badge/License-Proprietary-red)](#licença)
+[![Security](https://img.shields.io/badge/Privacy-100%25%20Local-success)](#-privacidade--segurança)
+[![License](https://img.shields.io/badge/License-Proprietary%20%2F%20Commercial-red)](#-licenciamento)
 
 </div>
 
 ---
 
-## 🎯 Sobre o Sentinela
+## 🎯 Visão Geral
 
-O **Sentinela** é uma camada de segurança determinística baseada no **Model Context Protocol (MCP)**. Ele permite que qualquer agente de IA (Claude, Gemini, Antigravity, Cursor, Windsurf) audite repositórios de código, detecte vulnerabilidades reais, extraia evidências precisas com números de linha, gere checklists de conformidade e valide correções automaticamente.
+O **Sentinela** é uma solução corporativa de auditoria estática de segurança e conformidade arquitetural projetada para ser consumida diretamente por agentes de IA (Claude, Gemini, Cursor, Antigravity, Windsurf).
 
-- **32 ferramentas MCP disponíveis** (24 analyzers especializados + 8 ferramentas de orquestração e remediação).
-- **Zero IA embutida na Fase 1**: auditorias rápidas, determinísticas e reprodutíveis (análise léxica, regex otimizado e inspeção de configurações/arquivos).
-- **Knowledge Base viva**: mapeamento direto das 32 diretrizes de segurança do `context.md`.
+Operando via protocolo padrão **MCP (Model Context Protocol)**, ele atua como um inspetor de segurança determinístico: analisa código, configurações e dependências em milissegundos, gerando relatórios de risco, checklists de conformidade e sugestões acionáveis de remediação.
+
+- **32 Ferramentas MCP**: 24 analisadores especializados por categoria de vulnerabilidade + 8 ferramentas de orquestração, diff e validação de correções.
+- **Auditoria 100% Determinística**: Sem alucinações ou variações estocásticas — regras precisas com extração de arquivo, linha e snippet de evidência.
+- **Stack-Aware**: Identifica automaticamente a linguagem, framework, ORM e banco de dados do projeto auditado para adaptar diagnósticos e recomendações.
+- **Privacidade Absoluta**: Nenhuma linha de código ou metadado sai da sua infraestrutura ou máquina local.
 
 ---
 
-## 🚀 Instalação & Uso
+## 🔒 Privacidade & Segurança
 
-### Pré-requisitos
-- Node.js 20+
-- npm
+O Sentinela foi desenvolvido especificamente para atender requisitos corporativos e ambientes restritos:
 
-### 1. Instalar dependências e compilar
+- **Execução Local (On-Premise / Stdio)**: Todas as análises ocorrem localmente no processo do servidor MCP via `stdio`.
+- **Zero Telemetria / Sem Conexões Externas**: Não envia dados para nuvens de terceiros ou servidores externos.
+- **Seguro para Código Proprietário**: Totalmente compatível com projetos confidenciais e ambientes com políticas rígidas de compliance (LGPD, GDPR, SOC 2).
 
-```bash
-git clone https://github.com/alissonandrade1/sentinela-mcp.git
-cd sentinela
-npm install
-npm run build
-```
+---
 
-### 2. Configurar no seu Cliente MCP
+## 🚀 Como Configurar no seu Cliente MCP
 
-#### Claude Desktop (`claude_desktop_config.json`)
+O Sentinela conecta-se diretamente ao seu agente ou IDE compatível com MCP através do comando `sentinela`.
+
+### Claude Desktop
+No seu arquivo de configuração `claude_desktop_config.json`:
+
 ```json
 {
   "mcpServers": {
     "sentinela": {
-      "command": "node",
-      "args": ["C:/sentinela/dist/server.js"]
+      "command": "sentinela"
     }
   }
 }
 ```
 
-#### Cursor / Antigravity / Windsurf
-Adicione às configurações de MCP:
+### Cursor / Antigravity / Windsurf / VS Code
+Adicione às configurações de MCP do seu ambiente:
+
 ```json
 {
   "name": "sentinela",
-  "command": "node",
-  "args": ["C:/sentinela/dist/server.js"]
+  "command": "sentinela"
 }
 ```
 
@@ -70,61 +71,50 @@ Adicione às configurações de MCP:
 ### 1. Orquestração e Auditoria
 | Ferramenta | Descrição |
 |---|---|
-| `sentinela_detect_stack` | Identifica linguagem, framework, ORM, banco de dados, auth provider e hosting. |
-| `sentinela_audit_full` | Executa todos os 24 analyzers em paralelo/sequencial e retorna o `AuditReport` completo com score (0-100). |
-| `sentinela_generate_report` | Transforma o relatório de auditoria em um documento Markdown formatado com sumário, severidades e evidências. |
-| `sentinela_compare_reports` | Compara dois relatórios (antes vs depois), calculando findings novos, corrigidos e variação do score. |
-| `sentinela_get_checklist` | Avalia 24 itens de conformidade essenciais com status `pass` ou `fail`. |
-| `sentinela_get_rules` | Consulta a base de regras (`context.md`) por termo, categoria ou seção, com opção de extrair o texto explicativo. |
+| `sentinela_detect_stack` | Identifica linguagem, framework, ORM, banco de dados, auth provider e hosting da aplicação. |
+| `sentinela_audit_full` | Executa todos os 24 analisadores em lote e retorna o `AuditReport` completo com score de risco (0-100). |
+| `sentinela_generate_report` | Converte a auditoria em um relatório detalhado formatado em Markdown pronto para documentação e entrega. |
+| `sentinela_compare_reports` | Compara dois relatórios (antes vs depois) detalhando vulnerabilidades corrigidas, novos riscos e evolução de pontuação. |
+| `sentinela_get_checklist` | Gera checklist de 24 pontos de segurança com verificação binária de conformidade (`pass` / `fail`). |
+| `sentinela_get_rules` | Consulta a base de diretrizes e regras de segurança por termo, categoria ou seção. |
 
-### 2. Correção e Validação
+### 2. Remediação & Validação
 | Ferramenta | Descrição |
 |---|---|
-| `sentinela_suggest_fix` | Sugere correções seguras com exemplos práticos antes/depois ajustados à stack do projeto. |
-| `sentinela_validate_fix` | Re-executa o analyzer específico para verificar se o finding foi resolvido sem introduzir regressões. |
+| `sentinela_suggest_fix` | Sugere implementações seguras com exemplos práticos antes/depois ajustados à stack tecnológica do projeto. |
+| `sentinela_validate_fix` | Re-executa o analisador correspondente para validar de forma determinística se a correção eliminou a vulnerabilidade. |
 
-### 3. Analyzers Especializados (24 Tools)
-Cada categoria pode ser executada isoladamente ou através do `sentinela_audit_full`:
+### 3. Analisadores Especializados (24 Tools)
+Cada analisador pode ser invocado de forma granular pelo agente:
 
-1. **`sentinela_analyze_secrets`** (Seção 13): Chaves de API, tokens JWT, senhas e hashes hardcoded.
-2. **`sentinela_analyze_xss`** (Seção 18): `dangerouslySetInnerHTML`, `innerHTML`, `v-html` sem DOMPurify.
-3. **`sentinela_analyze_deserialization`** (Seção 28): `eval()`, `Function()`, `pickle.loads()`, `unserialize()`.
-4. **`sentinela_analyze_logging`** (Seção 22): Vazamento de credenciais, senhas e tokens em `console.log` e loggers.
-5. **`sentinela_analyze_error_messages`** (Seção 4): Stack traces e mensagens de erro brutas retornadas para clientes HTTP.
-6. **`sentinela_analyze_timing`** (Seção 29): Comparações de tokens/senhas com `===` ao invés de `timingSafeEqual`.
-7. **`sentinela_analyze_identity`** (Seção 2): Parâmetros `user_id` recebidos no body/query em vez de extraídos da sessão/JWT.
-8. **`sentinela_analyze_mutations`** (Seção 2): Operações de mutação sem validação de identidade do usuário.
-9. **`sentinela_analyze_dependencies`** (Seção 21): Falta de lock files (`package-lock.json`, etc.) e ausência de Dependabot.
-10. **`sentinela_analyze_headers`** (Seção 11): Falta de Helmet, HSTS, CSP, X-Frame-Options, X-Content-Type-Options.
-11. **`sentinela_analyze_cors`** (Seção 19): `Access-Control-Allow-Origin: *` combinado com credenciais ativas.
-12. **`sentinela_analyze_tests`** (Seção 14): Ausência de diretórios ou suites de testes unitários/integração.
-13. **`sentinela_analyze_secrets_mgmt`** (Seção 26): Ausência de `.env.example` e verificação de `.env` rastreado pelo git.
-14. **`sentinela_analyze_request_limits`** (Seção 32): Ausência de limites de payload (`limit: '10mb'`, etc.) e timeouts.
-15. **`sentinela_analyze_idor`** (Seção 6): `UPDATE` e `DELETE` em ORMs/SQL sem filtro de ownership (`where: { id }` sem `userId`).
-16. **`sentinela_analyze_mass_assignment`** (Seção 20): `...req.body` repassado diretamente para `create()` ou `update()`.
-17. **`sentinela_analyze_error_handling`** (Seção 31): Handlers assíncronos sem `try-catch` e ausência de middleware global de erros.
-18. **`sentinela_analyze_uploads`** (Seção 10): Upload de arquivos sem validação de mimetype, tamanho ou sanitização de nome.
-19. **`sentinela_analyze_ssrf`** (Seção 23): Requisições HTTP (`fetch`, `axios`) disparadas com URLs controladas pelo usuário sem validação.
-20. **`sentinela_analyze_redirects`** (Seção 24): Redirecionamentos HTTP baseados em parâmetros do usuário (Open Redirect).
-21. **`sentinela_analyze_rate_limiting`** (Seção 5): Rotas sensíveis (login, register, reset-password) sem rate limit.
-22. **`sentinela_analyze_auth`** (Seção 8): Hashing fraco (MD5, SHA1), JWTs sem expiração configurada e cookies sem flag segura.
-23. **`sentinela_analyze_webhooks`** (Seção 27): Handlers de webhook sem conferência de assinatura criptográfica (HMAC) e idempotência.
-24. **`sentinela_analyze_input_validation`** (Seção 3): Rotas e endpoints sem esquemas de validação de payload (Zod, Yup, Joi).
-
----
-
-## 🧪 Testes
-
-```bash
-# Executar a suite de testes unitários (Vitest)
-npm test
-
-# Executar o teste smoke contra fixture vulnerável
-npx tsx tests/smoke.ts
-```
+1. **`sentinela_analyze_secrets`**: Chaves de API, segredos, senhas e tokens expostos no código.
+2. **`sentinela_analyze_xss`**: Vulnerabilidades de Cross-Site Scripting (`dangerouslySetInnerHTML`, `innerHTML`, `v-html`).
+3. **`sentinela_analyze_deserialization`**: Desserialização e execução de código insegura (`eval`, `Function`, `pickle`, `unserialize`).
+4. **`sentinela_analyze_logging`**: Vazamento de credenciais, PII ou informações sensíveis em logs.
+5. **`sentinela_analyze_error_messages`**: Exposição de stack traces ou mensagens técnicas em respostas de API.
+6. **`sentinela_analyze_timing`**: Comparações de segredos suscetíveis a ataques de temporização (Timing Attacks).
+7. **`sentinela_analyze_identity`**: Parâmetros de identidade (`user_id`) confiados a partir de payload do cliente.
+8. **`sentinela_analyze_mutations`**: Operações de mutação de dados sem validação de identidade do usuário.
+9. **`sentinela_analyze_dependencies`**: Ausência de lockfiles imutáveis e configurações de monitoramento automatizado.
+10. **`sentinela_analyze_headers`**: Ausência de cabeçalhos de segurança HTTP essenciais (CSP, HSTS, X-Frame-Options, etc.).
+11. **`sentinela_analyze_cors`**: Configurações de CORS permissivas com credenciais ativas.
+12. **`sentinela_analyze_tests`**: Verificação de cobertura e existência de testes de segurança.
+13. **`sentinela_analyze_secrets_mgmt`**: Gestão segura de variáveis de ambiente e modelos de `.env.example`.
+14. **`sentinela_analyze_request_limits`**: Limites de tamanho de payload HTTP e proteção contra exaustão de recursos.
+15. **`sentinela_analyze_idor`**: Vulnerabilidades de referência direta insegura a objetos em mutações (UPDATE/DELETE).
+16. **`sentinela_analyze_mass_assignment`**: Injeção de propriedades não autorizadas via espalhamento de payload (`...req.body`).
+17. **`sentinela_analyze_error_handling`**: Rotas assíncronas desprotegidas e ausência de manipuladores globais de exceção.
+18. **`sentinela_analyze_uploads`**: Upload de arquivos sem validação rigorosa de tipo MIME, extensão ou tamanho.
+19. **`sentinela_analyze_ssrf`**: Requisições de rede originadas no servidor com destinos controlados pelo usuário.
+20. **`sentinela_analyze_redirects`**: Redirecionamentos abertos baseados em entradas não validadas (Open Redirect).
+21. **`sentinela_analyze_rate_limiting`**: Ausência de limitação de taxa em endpoints sensíveis (autenticação, recuperação).
+22. **`sentinela_analyze_auth`**: Algoritmos fracos de hash, tokens JWT sem expiração ou cookies sem flags de segurança.
+23. **`sentinela_analyze_webhooks`**: Endpoints de webhook sem conferência de assinatura criptográfica (HMAC) e idempotência.
+24. **`sentinela_analyze_input_validation`**: Endpoints de API sem esquemas rigorosos de validação de entrada (Zod, Yup, Joi).
 
 ---
 
-## 📄 Licença
+## 📄 Licenciamento
 
-Proprietário. Todos os direitos reservados.
+**Produto Comercial Proprietário.**  
+Todos os direitos reservados. O uso, distribuição, cópia ou modificação deste software é estritamente restrito aos termos da licença comercial concedida pelo detentor dos direitos.
