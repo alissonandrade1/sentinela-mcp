@@ -66,6 +66,20 @@ Adicione às configurações de MCP do seu ambiente:
 
 ---
 
+## ⚡ Prompts & Slash Commands (`/`)
+
+Clientes que suportam MCP Prompts (como **Claude Desktop**) expõem fluxos prontos que podem ser acionados diretamente no chat via `/`:
+
+| Comando | Descrição |
+|---|---|
+| `/audit` | Auditoria completa de segurança no projeto com relatório detalhado e score. |
+| `/audit_category` | Análise focada em uma vulnerabilidade ou categoria específica (ex: `xss`, `secrets`, `auth`, `idor`, `rate-limiting`, etc.). |
+| `/fix_finding` | Orienta a correção de um finding e executa a validação determinística para confirmar que o problema foi eliminado. |
+| `/checklist` | Gera a matriz de conformidade com 24 verificações essenciais e status `pass` / `fail`. |
+| `/security_rules` | Consulta as diretrizes e regras arquiteturais de segurança da base de conhecimento (`context.md`). |
+
+---
+
 ## 🛠️ Ferramentas Disponíveis (32 Tools)
 
 ### 1. Orquestração e Auditoria

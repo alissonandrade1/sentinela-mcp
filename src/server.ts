@@ -367,6 +367,135 @@ server.tool(
 );
 
 // ============================================================================
+// Prompts (Slash Commands / MCP Prompts)
+// ============================================================================
+
+// --- /audit: Auditoria completa ---
+server.prompt(
+  "audit",
+  "Executa auditoria completa de segurança no projeto e gera relatório detalhado com score",
+  {
+    project_path: z.string().describe("Caminho absoluto para o diretório raiz do projeto"),
+  },
+  ({ project_path }) => ({
+    description: `Auditoria completa de segurança em: ${project_path}`,
+    messages: [
+      {
+        role: "user" as const,
+        content: {
+          type: "text" as const,
+          text: `Por favor, execute uma auditoria completa de segurança no projeto localizado em "${project_path}".
+
+Siga este procedimento:
+1. Chame \`sentinela_detect_stack\` para identificar a stack tecnológica.
+2. Execute a auditoria completa com \`sentinela_audit_full\`.
+3. Gere o relatório formatado em Markdown com \`sentinela_generate_report\` e apresente o score de segurança, a matriz de checklist e os principais findings com prioridade de correção.`,
+        },
+      },
+    ],
+  }),
+);
+
+// --- /audit_category: Análise focada em categoria específica ---
+server.prompt(
+  "audit_category",
+  "Executa análise de segurança focada em uma categoria ou vulnerabilidade específica (ex: xss, secrets, auth, idor, ssrf)",
+  {
+    category: z.string().describe("Categoria ou vulnerabilidade a analisar (ex: secrets, xss, auth, idor, mass-assignment, rate-limiting, ssrf, uploads, cors, headers)"),
+    project_path: z.string().describe("Caminho absoluto para o diretório raiz do projeto"),
+  },
+  ({ category, project_path }) => ({
+    description: `Auditoria focada em "${category}" no projeto: ${project_path}`,
+    messages: [
+      {
+        role: "user" as const,
+        content: {
+          type: "text" as const,
+          text: `Por favor, execute uma auditoria de segurança focada especificamente na categoria "${category}" para o projeto em "${project_path}".
+
+Siga este procedimento:
+1. Chame \`sentinela_detect_stack\` para entender a stack.
+2. Execute o analisador correspondente da categoria (ex: \`sentinela_audit_${category.replace(/-/g, "_")}\`) ou utilize \`sentinela_get_rules\` para entender as diretrizes de segurança aplicáveis.
+3. Se houver vulnerabilidades, mostre o arquivo, linha e evidência, e sugira a correção com \`sentinela_suggest_fix\`.`,
+        },
+      },
+    ],
+  }),
+);
+
+// --- /fix_finding: Correção e validação de vulnerabilidade ---
+server.prompt(
+  "fix_finding",
+  "Orienta a correção de uma vulnerabilidade e valida determinísticamente se o problema foi resolvido",
+  {
+    finding_id: z.string().describe("ID do finding a ser corrigido (ex: SENT-SEC-001, SENT-XSS-001)"),
+    category: z.string().describe("Categoria do finding (ex: secrets, xss, idor, auth)"),
+    project_path: z.string().describe("Caminho absoluto para o diretório raiz do projeto"),
+  },
+  ({ finding_id, category, project_path }) => ({
+    description: `Correção e validação do finding ${finding_id} (${category})`,
+    messages: [
+      {
+        role: "user" as const,
+        content: {
+          type: "text" as const,
+          text: `Por favor, ajude a remediar o finding de segurança "${finding_id}" (${category}) no projeto em "${project_path}".
+
+Siga este procedimento:
+1. Consulte \`sentinela_suggest_fix\` para obter a sugestão de correção adequada para a stack.
+2. Apresente o código antes/depois e aplique a alteração recomendada no arquivo.
+3. Após aplicar a alteração, execute \`sentinela_validate_fix\` para confirmar que a vulnerabilidade foi eliminada e não gerou regressões.`,
+        },
+      },
+    ],
+  }),
+);
+
+// --- /checklist: Matriz de conformidade rápida ---
+server.prompt(
+  "checklist",
+  "Gera a matriz de conformidade com 24 itens de segurança e status pass/fail",
+  {
+    project_path: z.string().describe("Caminho absoluto para o diretório raiz do projeto"),
+  },
+  ({ project_path }) => ({
+    description: `Checklist de conformidade de segurança para: ${project_path}`,
+    messages: [
+      {
+        role: "user" as const,
+        content: {
+          type: "text" as const,
+          text: `Por favor, verifique o checklist de conformidade de segurança no projeto em "${project_path}" chamando \`sentinela_get_checklist\`.
+Apresente uma tabela clara com todos os 24 itens, destacando o percentual de aprovação e os pontos críticos que reprovaram.`,
+        },
+      },
+    ],
+  }),
+);
+
+// --- /security_rules: Consulta de regras e diretrizes ---
+server.prompt(
+  "security_rules",
+  "Consulta diretrizes arquiteturais de segurança e boas práticas da base de conhecimento",
+  {
+    topic: z.string().describe("Tema, categoria ou seção a consultar (ex: xss, auth, cors, rate-limiting, 13)"),
+  },
+  ({ topic }) => ({
+    description: `Consulta de regras de segurança sobre: ${topic}`,
+    messages: [
+      {
+        role: "user" as const,
+        content: {
+          type: "text" as const,
+          text: `Por favor, consulte as diretrizes de segurança da base do Sentinela executando \`sentinela_get_rules\` com include_content: true para o tema "${topic}".
+Explique os requisitos de segurança, os riscos de implementação e como arquitetar a solução de forma segura.`,
+        },
+      },
+    ],
+  }),
+);
+
+// ============================================================================
 // Start
 // ============================================================================
 
