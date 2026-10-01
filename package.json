@@ -8,6 +8,13 @@
   "engines": {
     "node": ">=20.0.0"
   },
+  "bin": {
+    "sentinela": "./dist/server.js"
+  },
+  "files": [
+    "dist",
+    "context.md"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsx watch src/server.ts",
