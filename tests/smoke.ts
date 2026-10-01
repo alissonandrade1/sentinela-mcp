@@ -1,10 +1,11 @@
 /**
  * Sentinela — Smoke Test
  *
- * Roda o audit completo contra o fixture vulnerável e imprime os resultados.
+ * Roda o audit completo contra o fixture vulnerável e testa M5/M6.
  * Uso: npx tsx tests/smoke.ts
  */
 
+import { resolve } from "node:path";
 import { detectStack } from "../src/analyzers/detect-stack.js";
 import { secretsAnalyzer } from "../src/analyzers/secrets.js";
 import { xssAnalyzer } from "../src/analyzers/xss.js";
@@ -20,13 +21,26 @@ import { corsAnalyzer } from "../src/analyzers/cors.js";
 import { testsAnalyzer } from "../src/analyzers/tests.js";
 import { secretsMgmtAnalyzer } from "../src/analyzers/secrets-mgmt.js";
 import { requestLimitsAnalyzer } from "../src/analyzers/request-limits.js";
+import { idorAnalyzer } from "../src/analyzers/idor.js";
+import { massAssignmentAnalyzer } from "../src/analyzers/mass-assignment.js";
+import { errorHandlingAnalyzer } from "../src/analyzers/error-handling.js";
+import { uploadsAnalyzer } from "../src/analyzers/uploads.js";
+import { ssrfAnalyzer } from "../src/analyzers/ssrf.js";
+import { redirectsAnalyzer } from "../src/analyzers/redirects.js";
+import { rateLimitingAnalyzer } from "../src/analyzers/rate-limiting.js";
+import { authAnalyzer } from "../src/analyzers/auth.js";
+import { webhooksAnalyzer } from "../src/analyzers/webhooks.js";
+import { inputValidationAnalyzer } from "../src/analyzers/input-validation.js";
 import { calculateScore, summarizeFindings } from "../src/core/scoring.js";
-import { resolve } from "node:path";
-import type { Analyzer, Finding } from "../src/core/types.js";
+import { generateMarkdownReport, generateChecklist, compareReports } from "../src/core/report.js";
+import { searchRules, getRuleContent } from "../src/core/rules.js";
+import { suggestFix } from "../src/core/fix-suggester.js";
+import type { Analyzer, AuditReport, Finding } from "../src/core/types.js";
 
 const FIXTURE_PATH = resolve(import.meta.dirname!, "fixtures/vulnerable-nextjs");
 
 const analyzers: Analyzer[] = [
+  // M2
   secretsAnalyzer,
   xssAnalyzer,
   deserializationAnalyzer,
@@ -35,85 +49,111 @@ const analyzers: Analyzer[] = [
   timingAnalyzer,
   identityAnalyzer,
   mutationsAnalyzer,
+  // M3
   dependenciesAnalyzer,
   headersAnalyzer,
   corsAnalyzer,
   testsAnalyzer,
   secretsMgmtAnalyzer,
   requestLimitsAnalyzer,
+  // M4
+  idorAnalyzer,
+  massAssignmentAnalyzer,
+  errorHandlingAnalyzer,
+  uploadsAnalyzer,
+  ssrfAnalyzer,
+  redirectsAnalyzer,
+  rateLimitingAnalyzer,
+  authAnalyzer,
+  webhooksAnalyzer,
+  inputValidationAnalyzer,
 ];
 
 async function main() {
   console.log("═══════════════════════════════════════════════════════════");
-  console.log("  🛡️  SENTINELA — Smoke Test");
+  console.log("  🛡️  SENTINELA — Smoke Test (24 Analyzers + M5/M6)");
   console.log("═══════════════════════════════════════════════════════════");
   console.log(`\n📁 Projeto: ${FIXTURE_PATH}\n`);
 
   // 1. Detectar stack
-  console.log("📋 Detectando stack...\n");
+  console.log("📋 1. Detectando stack...");
   const stack = await detectStack(FIXTURE_PATH);
-  console.log("  Linguagem:  ", stack.language);
-  console.log("  Framework:  ", stack.framework);
-  console.log("  ORM:        ", stack.orm ?? "—");
-  console.log("  Banco:      ", stack.database);
-  console.log("  SQL Dialect:", stack.sql_dialect);
-  console.log("  Auth:       ", stack.auth_provider ?? "—");
-  console.log("  Hosting:    ", stack.hosting ?? "—");
+  console.log(`  Linguagem: ${stack.language} | Framework: ${stack.framework} | Banco: ${stack.database}`);
 
   // 2. Rodar analyzers
-  console.log("\n🔍 Executando analyzers...\n");
+  console.log(`\n🔍 2. Executando ${analyzers.length} analyzers...`);
   const allFindings: Finding[] = [];
 
   for (const analyzer of analyzers) {
     const start = Date.now();
     const findings = await analyzer.analyze({ project_path: FIXTURE_PATH, stack });
     const elapsed = Date.now() - start;
-    console.log(`  ✓ ${analyzer.name} (seção ${analyzer.section}): ${findings.length} findings [${elapsed}ms]`);
+    console.log(`  ✓ ${analyzer.name.padEnd(20)} (seção ${analyzer.section.padEnd(2)}): ${findings.length.toString().padStart(2)} findings [${elapsed}ms]`);
     allFindings.push(...findings);
   }
 
-  // 3. Resumo
+  // 3. Resumo & Score
   const summary = summarizeFindings(allFindings);
   const score = calculateScore(allFindings);
+  const checklist = generateChecklist(allFindings);
 
   console.log("\n═══════════════════════════════════════════════════════════");
-  console.log("  📊 RESULTADO");
+  console.log("  📊 3. RESULTADO DA AUDITORIA");
   console.log("═══════════════════════════════════════════════════════════");
-  console.log(`\n  Score: ${score}/100\n`);
-  console.log(`  Total:    ${summary.total}`);
-  console.log(`  🔴 Crítica: ${summary.critical}`);
-  console.log(`  🟠 Alta:    ${summary.high}`);
-  console.log(`  🟡 Média:   ${summary.medium}`);
-  console.log(`  🔵 Baixa:   ${summary.low}`);
-  console.log(`\n  Por categoria:`);
-  for (const [cat, count] of Object.entries(summary.by_category)) {
-    console.log(`    ${cat}: ${count}`);
-  }
+  console.log(`\n  Score: ${score}/100`);
+  console.log(`  Total: ${summary.total} (🔴 ${summary.critical} | 🟠 ${summary.high} | 🟡 ${summary.medium} | 🔵 ${summary.low})`);
+  console.log(`  Checklist: ${checklist.filter(c => c.status === "pass").length} pass / ${checklist.filter(c => c.status === "fail").length} fail`);
 
-  // 4. Listar findings
+  // 4. Testar M5 — Rules
   console.log("\n═══════════════════════════════════════════════════════════");
-  console.log("  🔎 FINDINGS DETALHADOS");
-  console.log("═══════════════════════════════════════════════════════════\n");
+  console.log("  📚 4. TESTE M5 — RULES ENGINE");
+  console.log("═══════════════════════════════════════════════════════════");
+  const xssRules = searchRules("xss");
+  console.log(`  Busca por 'xss': ${xssRules.length} resultado(s) -> Seção ${xssRules[0]?.section}: ${xssRules[0]?.title}`);
+  const ruleContent = await getRuleContent("18");
+  console.log(`  Conteúdo Seção 18 (XSS): ${ruleContent ? `${ruleContent.substring(0, 80)}...` : "Não encontrado"}`);
 
-  const severityIcon: Record<string, string> = {
-    critical: "🔴",
-    high: "🟠",
-    medium: "🟡",
-    low: "🔵",
+  // 5. Testar M5 — Markdown Report & Diff
+  console.log("\n═══════════════════════════════════════════════════════════");
+  console.log("  📄 5. TESTE M5 — REPORT & DIFF");
+  console.log("═══════════════════════════════════════════════════════════");
+  const report: AuditReport = {
+    project: { name: "vulnerable-nextjs", path: FIXTURE_PATH, stack },
+    timestamp: new Date().toISOString(),
+    duration_ms: 120,
+    summary,
+    findings: allFindings,
+    checklist,
+    score,
   };
+  const markdown = generateMarkdownReport(report);
+  console.log(`  Relatório Markdown gerado: ${markdown.length} caracteres`);
 
-  for (const f of allFindings) {
-    const icon = severityIcon[f.severity] ?? "⚪";
-    console.log(`${icon} ${f.id} [${f.severity.toUpperCase()}] — ${f.title}`);
-    if (f.file) console.log(`   📄 ${f.file}${f.line ? `:${f.line}` : ""}`);
-    if (f.evidence) console.log(`   💡 ${f.evidence.trim().substring(0, 100)}`);
-    console.log(`   🔧 ${f.recommendation}`);
-    if (f.cwe) console.log(`   📚 ${f.cwe} | ${f.owasp ?? ""}`);
-    console.log("");
+  // Testar diff (simulando 1 finding corrigido)
+  const reportAfter: AuditReport = {
+    ...report,
+    findings: allFindings.slice(1), // remove o primeiro
+    score: Math.min(100, score + 10),
+  };
+  const diff = compareReports(report, reportAfter);
+  console.log(`  Diff: ${diff.summary}`);
+
+  // 6. Testar M6 — Fix Suggester
+  console.log("\n═══════════════════════════════════════════════════════════");
+  console.log("  💡 6. TESTE M6 — FIX SUGGESTER");
+  console.log("═══════════════════════════════════════════════════════════");
+  const sampleFinding = allFindings.find(f => f.category === "secrets") ?? allFindings[0];
+  if (sampleFinding) {
+    const fix = suggestFix(sampleFinding, stack);
+    console.log(`  Sugestão para [${sampleFinding.id} - ${sampleFinding.category}]:`);
+    console.log(`  Descrição: ${fix.description}`);
+    if (fix.code) {
+      console.log(`  Exemplo de código:\n${fix.code.split("\n").map(l => "    " + l).slice(0, 6).join("\n")}...`);
+    }
   }
 
-  console.log("═══════════════════════════════════════════════════════════");
-  console.log(`  ✅ Teste concluído — ${allFindings.length} vulnerabilidades encontradas`);
+  console.log("\n═══════════════════════════════════════════════════════════");
+  console.log(`  ✅ Todos os 24 analyzers + M5 + M6 executados com sucesso!`);
   console.log("═══════════════════════════════════════════════════════════\n");
 }
 
