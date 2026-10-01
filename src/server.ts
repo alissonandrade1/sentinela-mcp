@@ -24,6 +24,16 @@ import { corsAnalyzer } from "./analyzers/cors.js";
 import { testsAnalyzer } from "./analyzers/tests.js";
 import { secretsMgmtAnalyzer } from "./analyzers/secrets-mgmt.js";
 import { requestLimitsAnalyzer } from "./analyzers/request-limits.js";
+import { idorAnalyzer } from "./analyzers/idor.js";
+import { massAssignmentAnalyzer } from "./analyzers/mass-assignment.js";
+import { errorHandlingAnalyzer } from "./analyzers/error-handling.js";
+import { uploadsAnalyzer } from "./analyzers/uploads.js";
+import { ssrfAnalyzer } from "./analyzers/ssrf.js";
+import { redirectsAnalyzer } from "./analyzers/redirects.js";
+import { rateLimitingAnalyzer } from "./analyzers/rate-limiting.js";
+import { authAnalyzer } from "./analyzers/auth.js";
+import { webhooksAnalyzer } from "./analyzers/webhooks.js";
+import { inputValidationAnalyzer } from "./analyzers/input-validation.js";
 import { calculateScore, summarizeFindings } from "./core/scoring.js";
 import type { Analyzer, AnalyzerContext, AuditReport, Finding } from "./core/types.js";
 
@@ -57,6 +67,17 @@ const analyzers: Analyzer[] = [
   testsAnalyzer,
   secretsMgmtAnalyzer,
   requestLimitsAnalyzer,
+  // M4 — AST + Advanced
+  idorAnalyzer,
+  massAssignmentAnalyzer,
+  errorHandlingAnalyzer,
+  uploadsAnalyzer,
+  ssrfAnalyzer,
+  redirectsAnalyzer,
+  rateLimitingAnalyzer,
+  authAnalyzer,
+  webhooksAnalyzer,
+  inputValidationAnalyzer,
 ];
 
 // ============================================================================
