@@ -8,7 +8,7 @@
 [![Node.js](https://img.shields.io/badge/Node.js-20+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![MCP](https://img.shields.io/badge/MCP-Protocol-8B5CF6)](https://modelcontextprotocol.io/)
 [![Security](https://img.shields.io/badge/Privacy-100%25%20Local-success)](#-privacidade--segurança)
-[![License](https://img.shields.io/badge/License-Proprietary%20%2F%20Commercial-red)](#-licenciamento)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 </div>
 
@@ -128,7 +128,33 @@ Cada analisador pode ser invocado de forma granular pelo agente:
 
 ---
 
+## 💻 Desenvolvimento Local & Contribuição
+
+Para clonar e testar o projeto localmente:
+
+```bash
+# 1. Clonar o repositório
+git clone https://github.com/alissonandrade1/sentinela-mcp.git
+cd sentinela-mcp
+
+# 2. Instalar dependências
+npm install
+
+# 3. Rodar a suíte de testes
+npm test
+
+# 4. Executar em modo watch (desenvolvimento)
+npm run dev
+
+# 5. Compilar o bundle de produção
+npm run build
+```
+
+Para diretrizes de contribuição, padrões de código e convenções de commit, consulte o arquivo [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
 ## 📄 Licenciamento
 
-**Produto Comercial Proprietário.**  
-Todos os direitos reservados. O uso, distribuição, cópia ou modificação deste software é estritamente restrito aos termos da licença comercial concedida pelo detentor dos direitos.
+Distribuído sob a licença **MIT**. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+

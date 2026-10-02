@@ -1,10 +1,8 @@
 # ========================================
 # Sentinela — .gitignore
-# Projeto PRIVADO. Repositório NÃO público.
+# Open Source Security Infrastructure
 # ========================================
 
-# ---------- Knowledge Base (NUNCA commitar) ----------
-context.md
 
 # ---------- Dependencies ----------
 node_modules/
